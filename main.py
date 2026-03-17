@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 import mysql.connector
-#import matplotlib
+import matplotlib.pyplot as plt
 
 app = FastAPI()
 
@@ -64,9 +64,34 @@ def get_test(entity_id):
     cursor = DB.cursor(dictionary=True)
     query5 = f"""select reported_lat , reported_lon , timestamp from intel_signals
                 WHERE entity_id ='{entity_id}' 
-                order by timestampc desc limit 1"""
+                order by timestamp desc"""
 
     cursor.execute(query5)
-    result = cursor.fetchone()
+    result = cursor.fetchall()
     DB.close()
-    return {"lat":result["reported_lat"],"lon":result["reported_lon"]}
+
+    if not result:
+        return {"entity_id not correct"}
+    
+    # all_lat = []
+    # all_lon = []
+
+    # for res in result:
+    #     lat = res["reported_lat"]
+    #     lon = res["reported_lon"]
+        
+    #     all_lat.append(lat) 
+    #     all_lon.append(lon)
+
+    all_lat = [result[0]["reported_lat"] , result[0]["reported_lon"]]
+    all_lon = [result[1]["reported_lat"], result[1]["reported_lon"]]
+
+
+    plt.plot(all_lat, all_lon , color='blue' ,linestyle='solid') 
+    plt.plot(all_lat[0], all_lon[0] , color='green', marker='o' , markersize=5)
+    plt.plot(all_lat[-1], all_lon[-1] , color='red' , marker='o' , markersize=5) 
+    plt.show()      
+
+    return {"status": "working"}
+
+    #return {"lat":result["reported_lat"],"lon":result["reported_lon"]}
